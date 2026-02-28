@@ -19,12 +19,15 @@
   padding: 0 20px;
 }
 
-.navbar__logo {
+.navbar__logoText {
   position: fixed;
   left: 20px;
-  width: 80px;
-  object-fit: contain;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #e50914;
   cursor: pointer;
+  margin: 0;
+  letter-spacing: -1px;
 }
 
 .navbar__avatar {
@@ -38,8 +41,8 @@
 }
 
 @media (min-width: 768px) {
-  .navbar__logo {
-    width: 100px;
+  .navbar__logoText {
+    font-size: 2.2rem;
   }
   
   .navbar__avatar {

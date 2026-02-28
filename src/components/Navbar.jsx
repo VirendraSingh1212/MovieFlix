@@ -20,11 +20,7 @@ function Navbar() {
   return (
     <div className={`navbar ${show && 'navbar__black'}`}>
       <div className="navbar__contents">
-        <img
-          className="navbar__logo"
-          src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg"
-          alt="Netflix Logo"
-        />
+        <h1 className="navbar__logoText">MovieFlix</h1>
         <img
           className="navbar__avatar"
           src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png"
