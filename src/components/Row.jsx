@@ -1,16 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import axios from '../axios';
 import { mockMovies, mockTrending, mockAction, mockComedy } from '../mockData';
 import './Row.css';
 
-function Row({ title, fetchUrl, isLargeRow = false }) {
+// Simple cache for API responses
+const apiCache = new Map();
+
+const Row = memo(function Row({ title, fetchUrl, isLargeRow = false }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const rowRef = useRef(null);
 
+  // Memoize duplicated movies to prevent unnecessary re-renders
+  const duplicatedMovies = useMemo(() => {
+    if (!movies.length) return [];
+    return [...movies, ...movies, ...movies];
+  }, [movies]);
+
   useEffect(() => {
     async function fetchData() {
+      // Check cache first
+      if (apiCache.has(fetchUrl)) {
+        console.log(`Using cached data for ${title}`);
+        setMovies(apiCache.get(fetchUrl));
+        setLoading(false);
+        return;
+      }
+      
       // Check if API key is available
       const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
       
@@ -22,8 +39,7 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
         else if (title.includes('Action')) mockData = mockAction;
         else if (title.includes('Comedy')) mockData = mockComedy;
         
-        const duplicatedMockData = [...mockData, ...mockData, ...mockData];
-        setMovies(duplicatedMockData);
+        setMovies(mockData);
         setLoading(false);
         return;
       }
@@ -35,10 +51,9 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
         console.log(`${title} response:`, request.data);
         // OMDb returns Search array instead of results
         if (request.data.Search) {
-          // Duplicate movies to fill the row and create seamless scroll
-          const moviesList = request.data.Search;
-          const duplicatedMovies = [...moviesList, ...moviesList, ...moviesList];
-          setMovies(duplicatedMovies);
+          // Cache the response
+          apiCache.set(fetchUrl, request.data.Search);
+          setMovies(request.data.Search);
           setError(null);
         } else {
           setError('No data available');
@@ -52,9 +67,7 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
         else if (title.includes('Action')) mockData = mockAction;
         else if (title.includes('Comedy')) mockData = mockComedy;
         
-        // Duplicate to fill the row
-        const duplicatedMockData = [...mockData, ...mockData, ...mockData];
-        setMovies(duplicatedMockData);
+        setMovies(mockData);
         setError(null);
       } finally {
         setLoading(false);
@@ -98,15 +111,16 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
               &#8249;
             </button>
             <div className="row__posters" ref={rowRef}>
-              {movies.map(
-                (movie) =>
+              {duplicatedMovies.map(
+                (movie, index) =>
                   movie.Poster && movie.Poster !== 'N/A' && (
                     <img
                       className={`row__poster ${isLargeRow && 'row__posterLarge'}`}
-                      key={movie.imdbID}
+                      key={`${movie.imdbID}-${index}`}
                       src={movie.Poster}
                       alt={movie.Title}
                       loading="lazy"
+                      decoding="async"
                     />
                   )
               )}
@@ -122,6 +136,6 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
       )}
     </div>
   );
-}
+});
 
 export default Row;

@@ -1,22 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import axios from '../axios';
 import requests from '../requests';
 import { mockMovies } from '../mockData';
 import './Banner.css';
 
-function Banner() {
+// Cache for banner data
+let bannerCache = null;
+
+const Banner = memo(function Banner() {
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
+      // Check cache first
+      if (bannerCache) {
+        console.log('Using cached banner data');
+        setMovie(bannerCache);
+        setLoading(false);
+        return;
+      }
+      
       // Check if API key is available
       const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
       
       if (!API_KEY) {
         console.log('No API key found, using mock data for banner');
-        setMovie(mockMovies[Math.floor(Math.random() * mockMovies.length)]);
+        const randomMovie = mockMovies[Math.floor(Math.random() * mockMovies.length)];
+        bannerCache = randomMovie;
+        setMovie(randomMovie);
         setLoading(false);
         return;
       }
@@ -31,6 +44,7 @@ function Banner() {
           const randomMovie = request.data.Search[Math.floor(Math.random() * request.data.Search.length)];
           // Fetch full details for the selected movie
           const detailRequest = await axios.get(`?i=${randomMovie.imdbID}&apikey=${API_KEY}`);
+          bannerCache = detailRequest.data;
           setMovie(detailRequest.data);
           setError(null);
         } else {
@@ -40,7 +54,9 @@ function Banner() {
         console.error('Error fetching banner data:', err.response?.data || err.message);
         console.log('Using mock data for banner');
         // Fallback to mock data on error
-        setMovie(mockMovies[Math.floor(Math.random() * mockMovies.length)]);
+        const randomMovie = mockMovies[Math.floor(Math.random() * mockMovies.length)];
+        bannerCache = randomMovie;
+        setMovie(randomMovie);
         setError(null);
       } finally {
         setLoading(false);
@@ -87,6 +103,6 @@ function Banner() {
       <div className="banner--fadeBottom" />
     </header>
   );
-}
+});
 
 export default Banner;
