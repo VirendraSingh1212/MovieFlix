@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 20px 4%;
+  padding: 20px 0 20px 4%;
   background: linear-gradient(to bottom, transparent, #141414);
   margin-top: -60px;
   z-index: 10;
@@ -68,7 +68,7 @@
 /* Tablet */
 @media (min-width: 768px) {
   .categoryPills {
-    padding: 24px 5%;
+    padding: 24px 0 24px 5%;
     margin-top: -80px;
   }
   
