@@ -1,7 +1,7 @@
 .row {
   color: white;
   margin-bottom: 40px;
-  padding: 0 4%;
+  padding: 0 0 0 4%;
 }
 
 .row__title {
@@ -18,20 +18,22 @@
 
 /* Swiper custom styles */
 .row__swiper {
-  padding: 20px 0 40px !important;
+  padding: 20px 0 40px 0 !important;
   overflow: visible !important;
+  margin-left: -4%;
+  padding-left: 4% !important;
 }
 
 .row__swiper .swiper-button-prev,
 .row__swiper .swiper-button-next {
   color: white;
-  background: rgba(20, 20, 20, 0.7);
-  width: 44px;
-  height: 44px;
-  top: 50%;
-  transform: translateY(-50%);
-  margin-top: -22px;
-  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  width: 28px;
+  height: 100%;
+  top: 0;
+  transform: none;
+  margin-top: 0;
+  border-radius: 0;
   transition: all 0.25s ease;
   opacity: 0;
 }
@@ -42,22 +44,23 @@
 }
 
 .row__swiper .swiper-button-prev {
-  left: 8px;
+  left: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 100%);
 }
 
 .row__swiper .swiper-button-next {
-  right: 8px;
+  right: 0;
+  background: linear-gradient(to left, rgba(0,0,0,0.7) 0%, transparent 100%);
 }
 
 .row__swiper .swiper-button-prev:hover,
 .row__swiper .swiper-button-next:hover {
-  background: rgba(229, 9, 20, 0.9);
-  transform: translateY(-50%) scale(1.1);
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .row__swiper .swiper-button-prev::after,
 .row__swiper .swiper-button-next::after {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
 }
 
@@ -180,7 +183,12 @@
 @media (min-width: 768px) {
   .row {
     margin-bottom: 48px;
-    padding: 0 5%;
+    padding: 0 0 0 5%;
+  }
+  
+  .row__swiper {
+    margin-left: -5%;
+    padding-left: 5% !important;
   }
   
   .row__title {
@@ -195,6 +203,11 @@
   .row__posterTitle {
     font-size: 1rem;
   }
+  
+  .row__swiper .swiper-button-prev,
+  .row__swiper .swiper-button-next {
+    width: 36px;
+  }
 }
 
 /* Desktop */
@@ -205,7 +218,7 @@
   
   .row__swiper .swiper-button-prev,
   .row__swiper .swiper-button-next {
-    width: 60px;
+    width: 40px;
   }
   
   .row__posterContainer {
