@@ -9,6 +9,25 @@
   --text-primary: #ffffff;
   --text-secondary: #bfc3c7;
   --text-muted: #808080;
+  --padding-x: 20px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --padding-x: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --padding-x: 60px;
+  }
+}
+
+@media (min-width: 1400px) {
+  :root {
+    --padding-x: 80px;
+  }
 }
 
 * {

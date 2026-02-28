@@ -171,15 +171,15 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
         breakpoints={{
           640: {
             slidesPerView: slides.tablet,
-            spaceBetween: isLargeRow ? 20 : 14,
+            spaceBetween: isLargeRow ? 16 : 12,
           },
           1024: {
             slidesPerView: slides.desktop,
-            spaceBetween: isLargeRow ? 24 : 16,
+            spaceBetween: isLargeRow ? 16 : 14,
           },
           1400: {
             slidesPerView: slides.large,
-            spaceBetween: isLargeRow ? 28 : 18,
+            spaceBetween: isLargeRow ? 16 : 16,
           },
         }}
         className="row__swiper"
