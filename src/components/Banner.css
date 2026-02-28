@@ -1,0 +1,130 @@
+.banner {
+  color: white;
+  object-fit: contain;
+  height: 448px;
+  position: relative;
+}
+
+.banner__contents {
+  margin-left: 30px;
+  padding-top: 140px;
+  height: 190px;
+}
+
+.banner__title {
+  font-size: 3rem;
+  font-weight: 800;
+  padding-bottom: 0.3rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.banner__description {
+  width: 45rem;
+  line-height: 1.3;
+  padding-top: 1rem;
+  font-size: 0.8rem;
+  max-width: 360px;
+  height: 80px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.banner__buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.banner__button {
+  cursor: pointer;
+  color: #fff;
+  outline: none;
+  border: none;
+  font-weight: 700;
+  border-radius: 0.2vw;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  margin-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  background-color: rgba(51, 51, 51, 0.5);
+  transition: all 0.2s;
+}
+
+.banner__button:hover {
+  color: #000;
+  background-color: #e6e6e6;
+  transition: all 0.2s;
+}
+
+.banner__buttonPlay {
+  background-color: white;
+  color: black;
+}
+
+.banner__buttonPlay:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+.banner--fadeBottom {
+  height: 7.4rem;
+  background-image: linear-gradient(
+    180deg,
+    transparent,
+    rgba(37, 37, 37, 0.61),
+    #111
+  );
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.banner__loading {
+  height: 448px;
+  background: linear-gradient(180deg, #333 0%, #111 100%);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; }
+}
+
+.banner__error {
+  height: 448px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #e50914;
+  font-size: 1rem;
+  padding: 20px;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .banner {
+    height: 600px;
+  }
+  
+  .banner__contents {
+    padding-top: 200px;
+    height: 280px;
+  }
+  
+  .banner__title {
+    font-size: 4rem;
+  }
+  
+  .banner__description {
+    font-size: 1.2rem;
+    max-width: 500px;
+  }
+  
+  .banner__button {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+    font-size: 1.1rem;
+  }
+}
