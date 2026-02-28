@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, memo, useCallback } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, A11y, Lazy } from 'swiper/modules';
+import { Navigation, Pagination, A11y } from 'swiper/modules';
 import { motion } from 'framer-motion';
 import axios from '../axios';
 import { mockMovies, mockTrending, mockAction, mockComedy } from '../mockData';
@@ -10,7 +10,6 @@ import './Row.css';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import 'swiper/css/lazy';
 
 // Simple cache for API responses
 const apiCache = new Map();
@@ -164,12 +163,10 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
     >
       <h2 className="row__title">{title}</h2>
       <Swiper
-        modules={[Navigation, Pagination, A11y, Lazy]}
+        modules={[Navigation, Pagination, A11y]}
         spaceBetween={isLargeRow ? 16 : 12}
         slidesPerView={slides.mobile}
         navigation
-        lazy={{ loadPrevNext: true, loadPrevNextAmount: 2 }}
-        preloadImages={false}
         pagination={{ clickable: true, dynamicBullets: true }}
         breakpoints={{
           640: {
@@ -204,13 +201,12 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
                 aria-label={`View details for ${movie.Title}`}
               >
                 <img
-                  className="row__poster swiper-lazy"
-                  data-src={movie.Poster}
+                  className="row__poster"
+                  src={movie.Poster}
                   alt={movie.Title}
                   loading="lazy"
                   onError={(e) => { e.target.style.display = 'none'; }}
                 />
-                <div className="swiper-lazy-preloader"></div>
                 <div className="row__posterOverlay">
                   <h3 className="row__posterTitle">{movie.Title}</h3>
                   <div className="row__posterMeta">
