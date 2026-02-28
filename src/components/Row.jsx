@@ -18,7 +18,10 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
         console.log(`${title} response:`, request.data);
         // OMDb returns Search array instead of results
         if (request.data.Search) {
-          setMovies(request.data.Search);
+          // Duplicate movies to fill the row and create seamless scroll
+          const moviesList = request.data.Search;
+          const duplicatedMovies = [...moviesList, ...moviesList, ...moviesList];
+          setMovies(duplicatedMovies);
           setError(null);
         } else {
           setError('No data available');
@@ -32,7 +35,9 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
         else if (title.includes('Action')) mockData = mockAction;
         else if (title.includes('Comedy')) mockData = mockComedy;
         
-        setMovies(mockData);
+        // Duplicate to fill the row
+        const duplicatedMockData = [...mockData, ...mockData, ...mockData];
+        setMovies(duplicatedMockData);
         setError(null);
       } finally {
         setLoading(false);
