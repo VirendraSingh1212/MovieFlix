@@ -20,7 +20,8 @@ function Banner() {
         if (request.data.Search && request.data.Search.length > 0) {
           const randomMovie = request.data.Search[Math.floor(Math.random() * request.data.Search.length)];
           // Fetch full details for the selected movie
-          const detailRequest = await axios.get(`?i=${randomMovie.imdbID}&apikey=${import.meta.env.VITE_OMDB_API_KEY}`);
+          const API_KEY = import.meta.env.VITE_OMDB_API_KEY || '31f8ed2e';
+          const detailRequest = await axios.get(`?i=${randomMovie.imdbID}&apikey=${API_KEY}`);
           setMovie(detailRequest.data);
           setError(null);
         } else {
