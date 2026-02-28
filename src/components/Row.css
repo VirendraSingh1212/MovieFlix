@@ -18,17 +18,15 @@
 
 /* Swiper custom styles */
 .row__swiper {
-  padding: 20px 0 40px 0 !important;
+  padding: 20px 4% 40px 4% !important;
   overflow: visible !important;
-  margin-left: -4%;
-  padding-left: 4% !important;
 }
 
 .row__swiper .swiper-button-prev,
 .row__swiper .swiper-button-next {
   color: white;
   background: rgba(0, 0, 0, 0.5);
-  width: 28px;
+  width: 44px;
   height: 100%;
   top: 0;
   transform: none;
@@ -45,12 +43,12 @@
 
 .row__swiper .swiper-button-prev {
   left: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 100%);
+  background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
 }
 
 .row__swiper .swiper-button-next {
   right: 0;
-  background: linear-gradient(to left, rgba(0,0,0,0.7) 0%, transparent 100%);
+  background: linear-gradient(to left, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
 }
 
 .row__swiper .swiper-button-prev:hover,
@@ -60,7 +58,7 @@
 
 .row__swiper .swiper-button-prev::after,
 .row__swiper .swiper-button-next::after {
-  font-size: 12px;
+  font-size: 18px;
   font-weight: bold;
 }
 
@@ -187,8 +185,17 @@
   }
   
   .row__swiper {
-    margin-left: -5%;
-    padding-left: 5% !important;
+    padding: 20px 5% 40px 5% !important;
+  }
+  
+  .row__swiper .swiper-button-prev,
+  .row__swiper .swiper-button-next {
+    width: 52px;
+  }
+  
+  .row__swiper .swiper-button-prev::after,
+  .row__swiper .swiper-button-next::after {
+    font-size: 22px;
   }
   
   .row__title {
@@ -206,7 +213,12 @@
   
   .row__swiper .swiper-button-prev,
   .row__swiper .swiper-button-next {
-    width: 36px;
+    width: 56px;
+  }
+  
+  .row__swiper .swiper-button-prev::after,
+  .row__swiper .swiper-button-next::after {
+    font-size: 24px;
   }
 }
 
@@ -218,7 +230,12 @@
   
   .row__swiper .swiper-button-prev,
   .row__swiper .swiper-button-next {
-    width: 40px;
+    width: 64px;
+  }
+  
+  .row__swiper .swiper-button-prev::after,
+  .row__swiper .swiper-button-next::after {
+    font-size: 28px;
   }
   
   .row__posterContainer {
