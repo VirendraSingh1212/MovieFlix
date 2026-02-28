@@ -7,6 +7,21 @@
   background-position: center top;
   background-repeat: no-repeat;
   color: white;
+  transition: opacity 0.3s ease;
+}
+
+.banner--loading {
+  opacity: 0.8;
+}
+
+.banner--loaded {
+  opacity: 1;
+}
+
+/* Show content immediately even while loading */
+.banner--loading .banner__contents,
+.banner--loaded .banner__contents {
+  opacity: 1;
 }
 
 .banner__gradient {

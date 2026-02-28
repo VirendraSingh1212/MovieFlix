@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import axios from '../axios';
 import { tmdbImageBaseURL } from '../axios';
@@ -8,6 +8,7 @@ import './Banner.css';
 
 // Cache for banner data
 let bannerCache = null;
+let preloadedImage = null;
 
 // High-quality backdrop images from TMDB (no API key needed for images)
 const highQualityBackdrops = [
@@ -23,17 +24,49 @@ const highQualityBackdrops = [
   `${tmdbImageBaseURL}/5vNW7gR7h3E5U8YJq9W8z1Q8J7.jpg`, // Popular series
 ];
 
+// Preload image function
+const preloadImage = (src) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(src);
+    img.onerror = reject;
+    img.src = src;
+  });
+};
+
 const Banner = memo(function Banner() {
-  const [movie, setMovie] = useState(null);
-  const [backdropUrl, setBackdropUrl] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [movie, setMovie] = useState(bannerCache?.movie || null);
+  const [backdropUrl, setBackdropUrl] = useState(bannerCache?.backdropUrl || null);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [loading, setLoading] = useState(!bannerCache);
   const [error, setError] = useState(null);
+
+  // Preload and set background image
+  const loadBackdrop = useCallback(async (url) => {
+    if (!url) return;
+    try {
+      await preloadImage(url);
+      setBackdropUrl(url);
+      setImageLoaded(true);
+    } catch (err) {
+      // If image fails to load, still show the banner with fallback
+      setBackdropUrl(url);
+      setImageLoaded(true);
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
+      // Use cached data immediately if available
       if (bannerCache) {
         setMovie(bannerCache.movie);
-        setBackdropUrl(bannerCache.backdropUrl);
+        if (!preloadedImage || preloadedImage !== bannerCache.backdropUrl) {
+          await loadBackdrop(bannerCache.backdropUrl);
+          preloadedImage = bannerCache.backdropUrl;
+        } else {
+          setBackdropUrl(bannerCache.backdropUrl);
+          setImageLoaded(true);
+        }
         setLoading(false);
         return;
       }
@@ -45,7 +78,8 @@ const Banner = memo(function Banner() {
         const randomBackdrop = highQualityBackdrops[Math.floor(Math.random() * highQualityBackdrops.length)];
         bannerCache = { movie: randomMovie, backdropUrl: randomBackdrop };
         setMovie(randomMovie);
-        setBackdropUrl(randomBackdrop);
+        await loadBackdrop(randomBackdrop);
+        preloadedImage = randomBackdrop;
         setLoading(false);
         return;
       }
@@ -59,7 +93,8 @@ const Banner = memo(function Banner() {
           const randomBackdrop = highQualityBackdrops[Math.floor(Math.random() * highQualityBackdrops.length)];
           bannerCache = { movie: detailRequest.data, backdropUrl: randomBackdrop };
           setMovie(detailRequest.data);
-          setBackdropUrl(randomBackdrop);
+          await loadBackdrop(randomBackdrop);
+          preloadedImage = randomBackdrop;
           setError(null);
         } else {
           setError('No data available');
@@ -69,21 +104,18 @@ const Banner = memo(function Banner() {
         const randomBackdrop = highQualityBackdrops[Math.floor(Math.random() * highQualityBackdrops.length)];
         bannerCache = { movie: randomMovie, backdropUrl: randomBackdrop };
         setMovie(randomMovie);
-        setBackdropUrl(randomBackdrop);
+        await loadBackdrop(randomBackdrop);
+        preloadedImage = randomBackdrop;
         setError(null);
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-  }, []);
+  }, [loadBackdrop]);
 
   function truncate(str, n) {
     return str?.length > n ? str.substr(0, n - 1) + '...' : str;
-  }
-
-  if (loading) {
-    return <div className="banner__loading"></div>;
   }
 
   if (error) {
@@ -92,11 +124,11 @@ const Banner = memo(function Banner() {
 
   return (
     <header
-      className="banner"
+      className={`banner ${imageLoaded ? 'banner--loaded' : 'banner--loading'}`}
       style={{
         backgroundImage: backdropUrl 
           ? `url("${backdropUrl}")`
-          : 'linear-gradient(180deg, #333 0%, #111 100%)',
+          : 'linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%)',
       }}
     >
       <div className="banner__gradient" />
