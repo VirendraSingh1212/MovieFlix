@@ -1,39 +1,36 @@
-import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
+import { motion } from 'framer-motion';
 import axios from '../axios';
 import { mockMovies, mockTrending, mockAction, mockComedy } from '../mockData';
 import './Row.css';
 
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
+
 // Simple cache for API responses
 const apiCache = new Map();
 
-const Row = memo(function Row({ title, fetchUrl, isLargeRow = false }) {
+const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClick }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const rowRef = useRef(null);
-
-  // Memoize duplicated movies to prevent unnecessary re-renders
-  const duplicatedMovies = useMemo(() => {
-    if (!movies.length) return [];
-    return [...movies, ...movies, ...movies];
-  }, [movies]);
 
   useEffect(() => {
     async function fetchData() {
-      // Check cache first
       if (apiCache.has(fetchUrl)) {
-        console.log(`Using cached data for ${title}`);
         setMovies(apiCache.get(fetchUrl));
         setLoading(false);
         return;
       }
       
-      // Check if API key is available
       const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
       
       if (!API_KEY) {
-        console.log(`No API key found, using mock data for ${title}`);
-        // Use mock data immediately if no API key
         let mockData = mockMovies;
         if (title.includes('Trending')) mockData = mockTrending;
         else if (title.includes('Action')) mockData = mockAction;
@@ -46,12 +43,8 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false }) {
       
       try {
         setLoading(true);
-        console.log(`Fetching ${title}...`);
         const request = await axios.get(fetchUrl);
-        console.log(`${title} response:`, request.data);
-        // OMDb returns Search array instead of results
         if (request.data.Search) {
-          // Cache the response
           apiCache.set(fetchUrl, request.data.Search);
           setMovies(request.data.Search);
           setError(null);
@@ -59,9 +52,6 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false }) {
           setError('No data available');
         }
       } catch (err) {
-        console.error(`Error fetching ${title}:`, err.response?.data || err.message);
-        console.log(`Using mock data for ${title}`);
-        // Fallback to mock data based on title
         let mockData = mockMovies;
         if (title.includes('Trending')) mockData = mockTrending;
         else if (title.includes('Action')) mockData = mockAction;
@@ -76,65 +66,106 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false }) {
     fetchData();
   }, [fetchUrl, title]);
 
-  const scroll = (direction) => {
-    if (rowRef.current) {
-      const { current } = rowRef;
-      const scrollAmount = direction === 'left' ? -300 : 300;
-      current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  const getSlidesPerView = () => {
+    if (isLargeRow) {
+      return {
+        mobile: 2.5,
+        tablet: 4,
+        desktop: 6,
+        large: 8
+      };
     }
+    return {
+      mobile: 3,
+      tablet: 4.5,
+      desktop: 6.5,
+      large: 8.5
+    };
   };
 
+  const slides = getSlidesPerView();
+
+  if (loading) {
+    return (
+      <div className="row">
+        <h2 className="row__title">{title}</h2>
+        <div className="row__loading"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="row">
+        <h2 className="row__title">{title}</h2>
+        <div className="row__error">{error}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="row">
-      {loading && (
-        <>
-          <h2>{title}</h2>
-          <div className="row__loading"></div>
-        </>
-      )}
-      
-      {error && !loading && (
-        <>
-          <h2>{title}</h2>
-          <div className="row__error">{error}</div>
-        </>
-      )}
-      
-      {!loading && !error && (
-        <>
-          <h2>{title}</h2>
-          <div className="row__container">
-            <button 
-              className="row__scrollButton row__scrollButtonLeft" 
-              onClick={() => scroll('left')}
-            >
-              &#8249;
-            </button>
-            <div className="row__posters" ref={rowRef}>
-              {duplicatedMovies.map(
-                (movie, index) =>
-                  movie.Poster && movie.Poster !== 'N/A' && (
-                    <img
-                      className={`row__poster ${isLargeRow && 'row__posterLarge'}`}
-                      key={`${movie.imdbID}-${index}`}
-                      src={movie.Poster}
-                      alt={movie.Title}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  )
-              )}
-            </div>
-            <button 
-              className="row__scrollButton row__scrollButtonRight" 
-              onClick={() => scroll('right')}
-            >
-              &#8250;
-            </button>
-          </div>
-        </>
-      )}
-    </div>
+    <motion.div 
+      className="row"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+    >
+      <h2 className="row__title">{title}</h2>
+      <Swiper
+        modules={[Navigation, Pagination, Scrollbar, A11y]}
+        spaceBetween={isLargeRow ? 16 : 12}
+        slidesPerView={slides.mobile}
+        navigation
+        pagination={{ clickable: true, dynamicBullets: true }}
+        breakpoints={{
+          640: {
+            slidesPerView: slides.tablet,
+            spaceBetween: isLargeRow ? 20 : 14,
+          },
+          1024: {
+            slidesPerView: slides.desktop,
+            spaceBetween: isLargeRow ? 24 : 16,
+          },
+          1400: {
+            slidesPerView: slides.large,
+            spaceBetween: isLargeRow ? 28 : 18,
+          },
+        }}
+        className="row__swiper"
+      >
+        {movies.map((movie) => (
+          movie.Poster && movie.Poster !== 'N/A' && (
+            <SwiperSlide key={movie.imdbID}>
+              <motion.div
+                className={`row__posterContainer ${isLargeRow ? 'row__posterLarge' : ''}`}
+                whileHover={{ 
+                  scale: 1.06, 
+                  y: -6,
+                  transition: { duration: 0.25, ease: 'easeOut' }
+                }}
+                onClick={() => onMovieClick && onMovieClick(movie)}
+              >
+                <img
+                  className="row__poster"
+                  src={movie.Poster}
+                  alt={movie.Title}
+                  loading="lazy"
+                />
+                <div className="row__posterOverlay">
+                  <h3 className="row__posterTitle">{movie.Title}</h3>
+                  <div className="row__posterMeta">
+                    <span>{movie.Year}</span>
+                    <span className="row__posterDot">•</span>
+                    <span>{movie.Type === 'series' ? 'Series' : 'Movie'}</span>
+                  </div>
+                </div>
+              </motion.div>
+            </SwiperSlide>
+          )
+        ))}
+      </Swiper>
+    </motion.div>
   );
 });
 

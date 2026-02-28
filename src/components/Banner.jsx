@@ -1,4 +1,5 @@
 import React, { useState, useEffect, memo } from 'react';
+import { motion } from 'framer-motion';
 import axios from '../axios';
 import { tmdbImageBaseURL } from '../axios';
 import requests from '../requests';
@@ -30,20 +31,16 @@ const Banner = memo(function Banner() {
 
   useEffect(() => {
     async function fetchData() {
-      // Check cache first
       if (bannerCache) {
-        console.log('Using cached banner data');
         setMovie(bannerCache.movie);
         setBackdropUrl(bannerCache.backdropUrl);
         setLoading(false);
         return;
       }
       
-      // Check if API key is available
       const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
       
       if (!API_KEY) {
-        console.log('No API key found, using mock data for banner');
         const randomMovie = mockMovies[Math.floor(Math.random() * mockMovies.length)];
         const randomBackdrop = highQualityBackdrops[Math.floor(Math.random() * highQualityBackdrops.length)];
         bannerCache = { movie: randomMovie, backdropUrl: randomBackdrop };
@@ -55,15 +52,10 @@ const Banner = memo(function Banner() {
       
       try {
         setLoading(true);
-        console.log('Fetching banner data...');
         const request = await axios.get(requests.fetchNetflixOriginals);
-        console.log('Banner response:', request.data);
-        // OMDb returns Search array instead of results
         if (request.data.Search && request.data.Search.length > 0) {
           const randomMovie = request.data.Search[Math.floor(Math.random() * request.data.Search.length)];
-          // Fetch full details for the selected movie
           const detailRequest = await axios.get(`?i=${randomMovie.imdbID}&apikey=${API_KEY}`);
-          // Pick a random high-quality backdrop
           const randomBackdrop = highQualityBackdrops[Math.floor(Math.random() * highQualityBackdrops.length)];
           bannerCache = { movie: detailRequest.data, backdropUrl: randomBackdrop };
           setMovie(detailRequest.data);
@@ -73,9 +65,6 @@ const Banner = memo(function Banner() {
           setError('No data available');
         }
       } catch (err) {
-        console.error('Error fetching banner data:', err.response?.data || err.message);
-        console.log('Using mock data for banner');
-        // Fallback to mock data on error
         const randomMovie = mockMovies[Math.floor(Math.random() * mockMovies.length)];
         const randomBackdrop = highQualityBackdrops[Math.floor(Math.random() * highQualityBackdrops.length)];
         bannerCache = { movie: randomMovie, backdropUrl: randomBackdrop };
@@ -105,26 +94,69 @@ const Banner = memo(function Banner() {
     <header
       className="banner"
       style={{
-        backgroundSize: 'cover',
         backgroundImage: backdropUrl 
           ? `url("${backdropUrl}")`
           : 'linear-gradient(180deg, #333 0%, #111 100%)',
-        backgroundPosition: 'center center',
       }}
     >
-      <div className="banner__contents">
+      <div className="banner__gradient" />
+      <motion.div 
+        className="banner__contents"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+      >
+        {/* Meta info row */}
+        <div className="banner__meta">
+          <span className="banner__rating">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#e50914">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            {movie?.imdbRating || '8.5'}
+          </span>
+          <span className="banner__year">{movie?.Year || '2024'}</span>
+          <span className="banner__runtime">{movie?.Runtime || '2h 15m'}</span>
+          <span className="banner__hd">HD</span>
+        </div>
+
+        {/* Title */}
         <h1 className="banner__title">
           {movie?.Title}
         </h1>
+
+        {/* Description */}
+        <p className="banner__description">
+          {truncate(movie?.Plot, 180)}
+        </p>
+
+        {/* CTAs */}
         <div className="banner__buttons">
-          <button className="banner__button banner__buttonPlay">Play</button>
-          <button className="banner__button banner__buttonList">My List</button>
+          <button className="btn-primary banner__playBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Play
+          </button>
+          <button className="btn-secondary banner__listBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            My List
+          </button>
         </div>
-        <h1 className="banner__description">
-          {truncate(movie?.Plot, 150)}
-        </h1>
-      </div>
-      <div className="banner--fadeBottom" />
+
+        {/* Genres */}
+        <div className="banner__genres">
+          {(movie?.Genre || 'Action, Drama, Thriller').split(', ').slice(0, 3).map((genre, i) => (
+            <span key={i} className="banner__genre">
+              {genre}
+              {i < 2 && <span className="banner__dot">•</span>}
+            </span>
+          ))}
+        </div>
+      </motion.div>
+      
+      <div className="banner__fadeBottom" />
     </header>
   );
 });
