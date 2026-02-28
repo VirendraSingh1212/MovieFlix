@@ -1,5 +1,5 @@
-// Use env variable if available, otherwise fallback to hardcoded key for deployment
-const API_KEY = import.meta.env.VITE_OMDB_API_KEY || '31f8ed2e';
+// Use environment variable only - no hardcoded keys for security
+const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
 
 // OMDb API uses different search terms since it doesn't have genre/category endpoints like TMDB
 const requests = {

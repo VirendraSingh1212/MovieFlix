@@ -11,6 +11,16 @@ function Banner() {
 
   useEffect(() => {
     async function fetchData() {
+      // Check if API key is available
+      const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
+      
+      if (!API_KEY) {
+        console.log('No API key found, using mock data for banner');
+        setMovie(mockMovies[Math.floor(Math.random() * mockMovies.length)]);
+        setLoading(false);
+        return;
+      }
+      
       try {
         setLoading(true);
         console.log('Fetching banner data...');
@@ -20,7 +30,6 @@ function Banner() {
         if (request.data.Search && request.data.Search.length > 0) {
           const randomMovie = request.data.Search[Math.floor(Math.random() * request.data.Search.length)];
           // Fetch full details for the selected movie
-          const API_KEY = import.meta.env.VITE_OMDB_API_KEY || '31f8ed2e';
           const detailRequest = await axios.get(`?i=${randomMovie.imdbID}&apikey=${API_KEY}`);
           setMovie(detailRequest.data);
           setError(null);

@@ -11,6 +11,23 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
 
   useEffect(() => {
     async function fetchData() {
+      // Check if API key is available
+      const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
+      
+      if (!API_KEY) {
+        console.log(`No API key found, using mock data for ${title}`);
+        // Use mock data immediately if no API key
+        let mockData = mockMovies;
+        if (title.includes('Trending')) mockData = mockTrending;
+        else if (title.includes('Action')) mockData = mockAction;
+        else if (title.includes('Comedy')) mockData = mockComedy;
+        
+        const duplicatedMockData = [...mockData, ...mockData, ...mockData];
+        setMovies(duplicatedMockData);
+        setLoading(false);
+        return;
+      }
+      
       try {
         setLoading(true);
         console.log(`Fetching ${title}...`);
