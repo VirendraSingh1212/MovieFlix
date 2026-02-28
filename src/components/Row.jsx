@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo, memo } from 'react';
+import React, { useState, useEffect, useMemo, memo, useCallback } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
+import { Navigation, Pagination, A11y, Lazy } from 'swiper/modules';
 import { motion } from 'framer-motion';
 import axios from '../axios';
 import { mockMovies, mockTrending, mockAction, mockComedy } from '../mockData';
@@ -10,20 +10,58 @@ import './Row.css';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import 'swiper/css/scrollbar';
+import 'swiper/css/lazy';
 
 // Simple cache for API responses
 const apiCache = new Map();
+
+// Security: Sanitize movie data
+const sanitizeMovieData = (movie) => {
+  if (!movie || typeof movie !== 'object') return null;
+  return {
+    ...movie,
+    Title: movie.Title?.toString().slice(0, 200) || '',
+    Year: movie.Year?.toString().slice(0, 20) || '',
+    imdbID: movie.imdbID?.toString().slice(0, 20) || '',
+    Type: movie.Type?.toString().slice(0, 20) || '',
+    Poster: movie.Poster?.match(/^https?:\/\//i) ? movie.Poster : null,
+  };
+};
 
 const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClick }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Intersection Observer for lazy loading rows
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+
+    const rowElement = document.getElementById(`row-${title.replace(/\s+/g, '-').toLowerCase()}`);
+    if (rowElement) {
+      observer.observe(rowElement);
+    }
+
+    return () => observer.disconnect();
+  }, [title]);
 
   useEffect(() => {
+    if (!isVisible) return;
+    
     async function fetchData() {
+      // Check cache first
       if (apiCache.has(fetchUrl)) {
-        setMovies(apiCache.get(fetchUrl));
+        const cached = apiCache.get(fetchUrl).map(sanitizeMovieData).filter(Boolean);
+        setMovies(cached);
         setLoading(false);
         return;
       }
@@ -36,7 +74,8 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
         else if (title.includes('Action')) mockData = mockAction;
         else if (title.includes('Comedy')) mockData = mockComedy;
         
-        setMovies(mockData);
+        const sanitized = mockData.map(sanitizeMovieData).filter(Boolean);
+        setMovies(sanitized);
         setLoading(false);
         return;
       }
@@ -45,8 +84,9 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
         setLoading(true);
         const request = await axios.get(fetchUrl);
         if (request.data.Search) {
-          apiCache.set(fetchUrl, request.data.Search);
-          setMovies(request.data.Search);
+          const sanitized = request.data.Search.map(sanitizeMovieData).filter(Boolean);
+          apiCache.set(fetchUrl, sanitized);
+          setMovies(sanitized);
           setError(null);
         } else {
           setError('No data available');
@@ -57,14 +97,22 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
         else if (title.includes('Action')) mockData = mockAction;
         else if (title.includes('Comedy')) mockData = mockComedy;
         
-        setMovies(mockData);
+        const sanitized = mockData.map(sanitizeMovieData).filter(Boolean);
+        setMovies(sanitized);
         setError(null);
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-  }, [fetchUrl, title]);
+  }, [fetchUrl, title, isVisible]);
+
+  // Memoized click handler
+  const handleMovieClick = useCallback((movie) => {
+    if (onMovieClick && movie) {
+      onMovieClick(movie);
+    }
+  }, [onMovieClick]);
 
   const getSlidesPerView = () => {
     if (isLargeRow) {
@@ -85,9 +133,11 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
 
   const slides = getSlidesPerView();
 
+  const rowId = `row-${title.replace(/\s+/g, '-').toLowerCase()}`;
+
   if (loading) {
     return (
-      <div className="row">
+      <div id={rowId} className="row">
         <h2 className="row__title">{title}</h2>
         <div className="row__loading"></div>
       </div>
@@ -96,7 +146,7 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
 
   if (error) {
     return (
-      <div className="row">
+      <div id={rowId} className="row">
         <h2 className="row__title">{title}</h2>
         <div className="row__error">{error}</div>
       </div>
@@ -105,18 +155,21 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
 
   return (
     <motion.div 
+      id={rowId}
       className="row"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
+      viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6 }}
     >
       <h2 className="row__title">{title}</h2>
       <Swiper
-        modules={[Navigation, Pagination, Scrollbar, A11y]}
+        modules={[Navigation, Pagination, A11y, Lazy]}
         spaceBetween={isLargeRow ? 16 : 12}
         slidesPerView={slides.mobile}
         navigation
+        lazy={{ loadPrevNext: true, loadPrevNextAmount: 2 }}
+        preloadImages={false}
         pagination={{ clickable: true, dynamicBullets: true }}
         breakpoints={{
           640: {
@@ -135,7 +188,7 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
         className="row__swiper"
       >
         {movies.map((movie) => (
-          movie.Poster && movie.Poster !== 'N/A' && (
+          movie.Poster && (
             <SwiperSlide key={movie.imdbID}>
               <motion.div
                 className={`row__posterContainer ${isLargeRow ? 'row__posterLarge' : ''}`}
@@ -144,14 +197,20 @@ const Row = memo(function Row({ title, fetchUrl, isLargeRow = false, onMovieClic
                   y: -6,
                   transition: { duration: 0.25, ease: 'easeOut' }
                 }}
-                onClick={() => onMovieClick && onMovieClick(movie)}
+                onClick={() => handleMovieClick(movie)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleMovieClick(movie)}
+                aria-label={`View details for ${movie.Title}`}
               >
                 <img
-                  className="row__poster"
-                  src={movie.Poster}
+                  className="row__poster swiper-lazy"
+                  data-src={movie.Poster}
                   alt={movie.Title}
                   loading="lazy"
+                  onError={(e) => { e.target.style.display = 'none'; }}
                 />
+                <div className="swiper-lazy-preloader"></div>
                 <div className="row__posterOverlay">
                   <h3 className="row__posterTitle">{movie.Title}</h3>
                   <div className="row__posterMeta">

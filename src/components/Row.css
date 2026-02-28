@@ -26,32 +26,47 @@
 .row__swiper .swiper-button-next {
   color: white;
   background: rgba(20, 20, 20, 0.7);
-  width: 48px;
-  height: 100%;
-  top: 0;
-  margin-top: 0;
+  width: 44px;
+  height: 44px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-top: -22px;
+  border-radius: 50%;
   transition: all 0.25s ease;
+  opacity: 0;
+}
+
+.row__swiper:hover .swiper-button-prev,
+.row__swiper:hover .swiper-button-next {
+  opacity: 1;
 }
 
 .row__swiper .swiper-button-prev {
-  left: -4%;
-  border-radius: 0 4px 4px 0;
+  left: 8px;
 }
 
 .row__swiper .swiper-button-next {
-  right: -4%;
-  border-radius: 4px 0 0 4px;
+  right: 8px;
 }
 
 .row__swiper .swiper-button-prev:hover,
 .row__swiper .swiper-button-next:hover {
-  background: rgba(20, 20, 20, 0.9);
+  background: rgba(229, 9, 20, 0.9);
+  transform: translateY(-50%) scale(1.1);
 }
 
 .row__swiper .swiper-button-prev::after,
 .row__swiper .swiper-button-next::after {
-  font-size: 1.5rem;
+  font-size: 14px;
   font-weight: bold;
+}
+
+/* Hide arrows on mobile */
+@media (max-width: 767px) {
+  .row__swiper .swiper-button-prev,
+  .row__swiper .swiper-button-next {
+    display: none;
+  }
 }
 
 .row__swiper .swiper-pagination {
