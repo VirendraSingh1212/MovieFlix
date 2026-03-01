@@ -9,7 +9,7 @@
   --text-primary: #ffffff;
   --text-secondary: #bfc3c7;
   --text-muted: #808080;
-  --padding-x: 20px;
+  --padding-x: 16px;
 }
 
 @media (min-width: 768px) {
@@ -151,7 +151,8 @@ body {
 }
 
 /* Smooth transitions */
-button, img {
+button,
+img {
   transition: all 0.25s ease;
 }
 

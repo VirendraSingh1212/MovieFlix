@@ -1,6 +1,6 @@
 .row {
   color: white;
-  margin-bottom: 40px;
+  margin-bottom: 16px;
 }
 
 .row__title {
@@ -19,7 +19,7 @@
 
 /* Swiper custom styles */
 .row__swiper {
-  padding: 20px var(--padding-x) 40px var(--padding-x) !important;
+  padding: 16px var(--padding-x) 24px var(--padding-x) !important;
   overflow: visible !important;
 }
 
@@ -27,16 +27,17 @@
 .row__swiper .swiper-button-next {
   color: white;
   background: rgba(0, 0, 0, 0.4);
-  width: var(--padding-x);
-  top: 20px;
-  bottom: 40px;
-  height: auto;
-  transform: none;
+  width: calc(var(--padding-x) + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  height: calc(100% - 40px);
   margin-top: 0;
-  border-radius: 0;
+  border-radius: 4px;
   transition: opacity 0.3s ease, background 0.25s ease;
   opacity: 0;
   pointer-events: none;
+  position: absolute;
+  z-index: 10;
 }
 
 .row:hover .row__swiper .swiper-button-prev,
@@ -101,6 +102,11 @@
   cursor: pointer;
   aspect-ratio: 2/3;
   background: #1a1a1a;
+  z-index: 1;
+}
+
+.row__posterContainer:hover {
+  z-index: 10;
 }
 
 .row__posterContainer.row__posterLarge {
@@ -189,16 +195,16 @@
 /* Tablet */
 @media (min-width: 768px) {
   .row {
-    margin-bottom: 48px;
+    margin-bottom: 24px;
   }
 
   .row__swiper {
-    padding: 20px var(--padding-x) 40px var(--padding-x) !important;
+    padding: 16px var(--padding-x) 24px var(--padding-x) !important;
   }
 
   .row__swiper .swiper-button-prev,
   .row__swiper .swiper-button-next {
-    width: var(--padding-x);
+    width: calc(var(--padding-x) + 12px);
   }
 
   .row__swiper .swiper-button-prev::after,
@@ -233,7 +239,7 @@
 
   .row__swiper .swiper-button-prev,
   .row__swiper .swiper-button-next {
-    width: var(--padding-x);
+    width: calc(var(--padding-x) + 16px);
   }
 
   .row__swiper .swiper-button-prev::after,
