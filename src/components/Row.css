@@ -1,10 +1,10 @@
 .row {
   color: white;
-  margin-bottom: 16px;
+  margin-bottom: 40px;
 }
 
 .row__title {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   font-size: 1.1rem;
   font-weight: 600;
   color: #e5e5e5;
@@ -19,7 +19,7 @@
 
 /* Swiper custom styles */
 .row__swiper {
-  padding: 16px var(--padding-x) 24px var(--padding-x) !important;
+  padding: 0 var(--padding-x) !important;
   overflow: visible !important;
 }
 
@@ -27,10 +27,10 @@
 .row__swiper .swiper-button-next {
   color: white;
   background: rgba(0, 0, 0, 0.4);
-  width: calc(var(--padding-x) + 8px);
+  width: var(--padding-x);
   top: 50%;
   transform: translateY(-50%);
-  height: calc(100% - 40px);
+  height: 100%;
   margin-top: 0;
   border-radius: 4px;
   transition: opacity 0.3s ease, background 0.25s ease;
@@ -195,16 +195,21 @@
 /* Tablet */
 @media (min-width: 768px) {
   .row {
-    margin-bottom: 24px;
+    margin-bottom: 48px;
+  }
+
+  .row__title {
+    font-size: 1.3rem;
+    margin-bottom: 32px;
   }
 
   .row__swiper {
-    padding: 16px var(--padding-x) 24px var(--padding-x) !important;
+    padding: 0 var(--padding-x) !important;
   }
 
   .row__swiper .swiper-button-prev,
   .row__swiper .swiper-button-next {
-    width: calc(var(--padding-x) + 12px);
+    width: var(--padding-x);
   }
 
   .row__swiper .swiper-button-prev::after,
@@ -239,7 +244,7 @@
 
   .row__swiper .swiper-button-prev,
   .row__swiper .swiper-button-next {
-    width: calc(var(--padding-x) + 16px);
+    width: var(--padding-x);
   }
 
   .row__swiper .swiper-button-prev::after,

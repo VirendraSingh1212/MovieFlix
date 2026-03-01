@@ -14,13 +14,13 @@
 
 @media (min-width: 768px) {
   :root {
-    --padding-x: 40px;
+    --padding-x: 32px;
   }
 }
 
 @media (min-width: 1024px) {
   :root {
-    --padding-x: 60px;
+    --padding-x: 64px;
   }
 }
 
